@@ -467,8 +467,9 @@ section { padding: clamp(64px, 9vw, 116px) 0; }
   .outcome:last-child { border-bottom: none; }
   .steps { grid-template-columns: 1fr; gap: 20px; }
   .step-screen { height: auto; min-height: 200px; }
-  .measure-stage { grid-template-columns: 1fr; gap: 10px; }
+  .measure-stage { grid-template-columns: 1fr; gap: 10px; overflow: hidden; }
   .measure-link-svg { display: none; }
+  .measure-core svg { display: none; }
   .stream.phys .stream-item { justify-content: flex-start; text-align: left; }
   .stream.phys .stream-item .si-spark { order: 0; }
   .measure-core { order: -1; margin-bottom: 8px; }
