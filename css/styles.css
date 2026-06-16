@@ -92,7 +92,7 @@ kbd {
   gap: 12px;
 }
 
-.brand { display: flex; align-items: baseline; gap: 12px; background: none; border: none; padding: 0; cursor: pointer; text-align: left; color: inherit; }
+.brand { display: flex; align-items: baseline; gap: 12px; background: none; border: none; padding: 0; cursor: pointer; text-align: left; color: inherit; text-decoration: none; }
 .brand:hover h1 { color: var(--teal-ink); }
 .brand h1 {
   font-family: var(--display);
@@ -476,6 +476,7 @@ select {
 /* Top nav */
 .topnav { display: flex; gap: 4px; }
 .nav-link {
+  display: inline-flex; align-items: center; text-decoration: none;
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
   background: none; border: none; color: var(--muted);
   padding: 6px 12px; cursor: pointer; border-radius: 8px;

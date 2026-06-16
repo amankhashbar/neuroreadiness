@@ -523,15 +523,14 @@
   // ===========================================================================
   //  ROUTING
   //  A small hash router sits on top of the imperative screen flow. Top-level
-  //  views (#/overview, #/check, #/history, #/faq) are linkable + back-button
+  //  views (#/check, #/history, #/faq) are linkable + back-button
   //  friendly; the capture sub-screens (fit/baseline/tasks/results) are driven
   //  imperatively by goto() *within* the check route — they are transient
   //  states of a live sensor, so they aren't deep-linkable on purpose.
   // ===========================================================================
-  const ROUTES = { overview: "overview", check: "setup", history: "history", faq: "faq" };
+  const ROUTES = { check: "setup", history: "history", faq: "faq" };
   // Which top-nav group each screen lights up.
   const NAV_GROUP = {
-    overview: "overview",
     setup: "check", fit: "check", baseline: "check", tasks: "check", results: "check",
     history: "history",
     faq: "faq",
@@ -548,7 +547,7 @@
       el("#baseline-skip").disabled = false;
     }
     if (screen === "history" && NR.history) NR.history.render();
-    setNavActive(NAV_GROUP[screen] || "overview");
+    setNavActive(NAV_GROUP[screen] || "check");
     window.scrollTo(0, 0);
   }
 
@@ -556,10 +555,10 @@
     NR.dom.all(".nav-link").forEach((l) => l.classList.toggle("active", l.dataset.nav === group));
   }
 
-  // Parse the current hash into a known route key (defaults to overview).
+  // Parse the current hash into a known route key (defaults to check).
   function routeFromHash() {
     const key = (location.hash || "").replace(/^#\/?/, "").toLowerCase();
-    return ROUTES[key] ? key : "overview";
+    return ROUTES[key] ? key : "check";
   }
 
   // Render whatever the hash currently points at — never interrupts a capture.
@@ -724,7 +723,7 @@
       })
     );
 
-    // Top nav + any in-page [data-nav] button (hero CTAs, thesis link, brand).
+    // Top nav + any in-page [data-nav] button.
     NR.dom.all("[data-nav]").forEach((l) =>
       l.addEventListener("click", () => navigate(l.dataset.nav))
     );
@@ -773,7 +772,9 @@
 
     // Hash router: render the current route now, and on every hash change.
     window.addEventListener("hashchange", applyRoute);
-    if (!location.hash) location.hash = "#/overview"; // default landing
+    if (!location.hash || routeFromHash() !== (location.hash || "").replace(/^#\/?/, "").toLowerCase()) {
+      location.hash = "#/check"; // default app route; landing owns the overview.
+    }
     applyRoute();
   }
 
