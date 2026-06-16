@@ -11,7 +11,7 @@
      still renders offline after the first online visit.
    Bump CACHE on any shell change to retire the old cache.
    ============================================================= */
-const CACHE = "nr-shell-v8";
+const CACHE = "nr-shell-v9";
 
 // Paths are relative to the SW scope, so this works under a Pages subpath.
 const SHELL = [
@@ -28,6 +28,7 @@ const SHELL = [
   "./js/sensor.js",
   "./js/ppg.js",
   "./js/motion.js",
+  "./js/gsr.js",
   "./js/tasks.js",
   "./js/scores.js",
   "./js/csv.js",

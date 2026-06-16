@@ -401,6 +401,22 @@ select {
 .confidence-body li::before { content: "›"; position: absolute; left: 2px; color: var(--muted); }
 
 .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 24px; }
+.context-panel {
+  border: 1px solid rgba(37,99,235,0.24);
+  background: var(--blue-dim);
+  border-radius: 12px;
+  padding: 15px 18px;
+  margin: -4px 0 20px;
+}
+.context-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 5px;
+}
+.context-text { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
 .score-card {
   background: var(--panel);
   border: 1px solid var(--line);

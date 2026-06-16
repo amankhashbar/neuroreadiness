@@ -1,8 +1,8 @@
 /* =============================================================
    NeuroReadiness — scores.js
-   Turns raw metrics into five 0–100 readouts:
+   Turns raw metrics into six 0–100 readouts:
        alertness, cognitiveControl, workingMemory,
-       physiologicalLoad, dataConfidence
+       physiologicalLoad, electrodermalArousal, dataConfidence
 
    IMPORTANT: every formula here is a transparent heuristic, not a
    validated clinical instrument. The cutoffs are documented inline so
@@ -78,6 +78,41 @@
     };
   }
 
+  function electrodermalArousal(baseline, task) {
+    if (!task || !task.present || !isFinite(task.arousal)) {
+      return { value: NaN, why: "GSR not present" };
+    }
+    const taskArousal = task.arousal;
+    const delta = baseline && isFinite(baseline.arousal) ? taskArousal - baseline.arousal : NaN;
+    const deltaPart = isFinite(delta) ? M.remap(delta, -5, 25, -10, 25) : 0;
+    const value = M.clamp(taskArousal + deltaPart);
+    return {
+      value,
+      why: isFinite(delta)
+        ? `task arousal ${Math.round(taskArousal)}, ${delta >= 0 ? "+" : ""}${Math.round(delta)} vs baseline`
+        : `task arousal ${Math.round(taskArousal)}; no baseline GSR`,
+    };
+  }
+
+  function arousalContext(scores) {
+    const g = scores.electrodermalArousal && scores.electrodermalArousal.value;
+    if (!isFinite(g)) return { present: false, text: "" };
+
+    const readiness = NR.scores.composite(scores);
+    const load = scores.physiologicalLoad && scores.physiologicalLoad.value;
+    let text;
+    if (isFinite(readiness) && readiness < 55 && g >= 65) {
+      text = "Performance dipped while electrodermal arousal was elevated. That pattern can fit stress or over-arousal better than simple fatigue, but it is not diagnostic.";
+    } else if (isFinite(readiness) && readiness < 55 && g < 45 && (!isFinite(load) || load < 55)) {
+      text = "Performance dipped without elevated electrodermal arousal. Fatigue or under-recovery is a plausible context to track against sleep, workout and schedule notes.";
+    } else if (g >= 65) {
+      text = "Electrodermal arousal was elevated during the tasks. Read the cognitive scores with that sympathetic-activation context in mind.";
+    } else {
+      text = "Electrodermal arousal stayed in a moderate range. Use it as context alongside readiness, not as a standalone stress score.";
+    }
+    return { present: true, text };
+  }
+
   // The keystone score. If this is low, treat everything else as indicative
   // only. Built from mean signal quality, motion-clean fraction, and how much
   // of the protocol actually completed.
@@ -124,12 +159,13 @@
       return Math.round(parts.reduce((a, p) => a + p.v * p.w, 0) / wsum);
     },
 
-    compute({ pvt, stroop, nback, baselinePPG, taskPPG, quality, cleanFraction, taskCompletion, mode }) {
-      return {
+    compute({ pvt, stroop, nback, baselinePPG, taskPPG, baselineGSR, taskGSR, quality, cleanFraction, taskCompletion, mode }) {
+      const scores = {
         alertness: alertness(pvt),
         cognitiveControl: cognitiveControl(stroop),
         workingMemory: workingMemory(nback),
         physiologicalLoad: physiologicalLoad(baselinePPG, taskPPG),
+        electrodermalArousal: electrodermalArousal(baselineGSR, taskGSR),
         dataConfidence: dataConfidence({
           meanQuality: quality,
           cleanFraction,
@@ -137,6 +173,8 @@
           mode,
         }),
       };
+      scores.arousalContext = arousalContext(scores);
+      return scores;
     },
   };
   console.log("[NR] scores loaded");

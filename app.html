@@ -77,6 +77,10 @@
           <div class="r-value"><span id="live-pi">—</span><span class="r-unit">%</span></div>
         </div>
         <div class="readout">
+          <div class="r-label">Arousal proxy</div>
+          <div class="r-value"><span id="live-gsr">—</span><span class="r-unit">/100</span></div>
+        </div>
+        <div class="readout">
           <div class="r-label">Signal score</div>
           <div class="r-value"><span id="live-q">—</span><span class="r-unit">/100</span></div>
         </div>
@@ -113,7 +117,7 @@
         <div class="loop-card">
           <div class="loop-num">2</div>
           <h3>Run three tasks</h3>
-          <p>PVT (reaction time), Stroop (inhibition), 2-back (working memory) — a few minutes total — while heart rate and an HRV proxy are captured.</p>
+          <p>PVT (reaction time), Stroop (inhibition), 2-back (working memory) — a few minutes total — while heart rate, an HRV proxy and electrodermal arousal context are captured.</p>
         </div>
         <div class="loop-card">
           <div class="loop-num">3</div>
@@ -142,7 +146,7 @@
         <h2 class="screen-title">Set up a session</h2>
         <p class="screen-lede">
           NeuroReadiness benchmarks alertness, cognitive control and working memory with three short tasks,
-          while PPG and motion data provide physiological context. Pick a sensor placement to begin.
+          while PPG, motion and GSR data provide physiological context. Pick a sensor placement to begin.
           <strong id="source-mode-label">Simulated demo mode.</strong>
           <span id="source-mode-detail">Synthetic sensor data will demonstrate the complete workflow.</span>
         </p>
@@ -271,6 +275,11 @@
           </div>
         </div>
 
+        <div class="context-panel hidden" id="arousal-context">
+          <div class="context-kicker">Experimental context · electrodermal arousal</div>
+          <div class="context-text" id="arousal-context-text">—</div>
+        </div>
+
         <div class="score-grid" id="score-grid"></div>
 
         <div class="save-row" id="save-row">
@@ -298,7 +307,8 @@
           <strong>Not a medical device.</strong> NeuroReadiness produces heuristic performance proxies from
           reaction-time tasks and photoplethysmography. It does not measure cerebral blood flow, diagnose any
           condition, or provide medical advice. Scores are relative indicators for self-tracking and product
-          exploration only. Temple-mode PPG reflects superficial perfusion, not brain hemodynamics.
+          exploration only. Temple-mode PPG reflects superficial perfusion, not brain hemodynamics. GSR is an
+          electrodermal arousal proxy, not an emotion reader or stress diagnosis.
         </div>
       </div>
     </section>
@@ -366,6 +376,7 @@
               <li><strong>Stroop</strong> — response inhibition / cognitive control, from the slowdown on incongruent colour-word trials.</li>
               <li><strong>2-back</strong> — working memory, scored as d′ (sensitivity), so guessing doesn't inflate it.</li>
               <li><strong>Heart rate &amp; RMSSD proxy</strong> — from PPG inter-beat intervals. On PPG this is strictly <em>pulse-rate variability</em>, so it's labelled "proxy" throughout.</li>
+              <li><strong>Electrodermal arousal</strong> — from the GSR sensor. It helps separate fatigue-like dips from elevated sympathetic activation, but it is not emotion detection.</li>
             </ul>
           </details>
 
@@ -432,7 +443,7 @@
         <div class="disclaimer">
           <strong>Not a medical device.</strong> NeuroReadiness produces heuristic performance proxies from
           reaction-time tasks and photoplethysmography. It does not measure cerebral blood flow, diagnose any
-          condition, or provide medical advice.
+          condition, or provide medical advice. Electrodermal data is an arousal proxy only.
         </div>
 
         <div class="btn-row">
@@ -448,6 +459,7 @@
   <script src="js/sensor.js"></script>
   <script src="js/ppg.js"></script>
   <script src="js/motion.js"></script>
+  <script src="js/gsr.js"></script>
   <script src="js/tasks.js"></script>
   <script src="js/scores.js"></script>
   <script src="js/csv.js"></script>

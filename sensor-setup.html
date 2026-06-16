@@ -30,16 +30,17 @@
     <div class="wrap setup-hero-inner">
       <span class="eyebrow">Choose your test mode</span>
       <h1>A full diagnostic requires the NeuroReadiness sensor suite.</h1>
-      <p>The cognitive tasks run in the browser. Live heart-rate, pulse-variability, perfusion, motion and signal-confidence measurements require an ESP32-based PPG and motion sensor connected to desktop Chrome.</p>
+      <p>The cognitive tasks run in the browser. Live heart-rate, pulse-variability, perfusion, motion, electrodermal arousal and signal-confidence measurements require an ESP32-based PPG, motion and GSR sensor suite connected to desktop Chrome.</p>
       <div class="setup-choice-grid">
         <article class="setup-choice primary-choice">
           <div class="choice-label">Full diagnostic</div>
           <h2>Use live sensor data</h2>
-          <p>Connect a completed sensor suite and run the cognitive tasks alongside live PPG and motion measurements.</p>
+          <p>Connect a completed sensor suite and run the cognitive tasks alongside live PPG, motion and GSR arousal measurements.</p>
           <ul class="choice-list">
             <li>Live signal-quality gate</li>
             <li>Heart-rate and HRV/PRV proxy</li>
             <li>Motion-aware data confidence</li>
+            <li>Electrodermal arousal context</li>
           </ul>
           <a class="btn btn-primary btn-lg" href="app.html?source=serial#/check">I have the sensor suite</a>
         </article>
@@ -49,7 +50,7 @@
           <p>Experience the complete test flow with realistic synthetic sensor data. No hardware or account is required.</p>
           <ul class="choice-list">
             <li>All three cognitive tasks</li>
-            <li>Simulated pulse and motion stream</li>
+            <li>Simulated pulse, motion and arousal stream</li>
             <li>Results, confidence and history</li>
           </ul>
           <a class="btn btn-ghost btn-lg" href="app.html?source=demo#/check">Try simulated data</a>
@@ -63,7 +64,7 @@
       <div class="section-head">
         <span class="eyebrow">Build the sensor suite</span>
         <h2 class="section-title">From parts to a verified live stream.</h2>
-        <p class="section-lede">Build and verify one sensor at a time. Start with fingertip PPG over USB; add the motion sensor after the pulse stream is stable.</p>
+        <p class="section-lede">Build and verify one sensor at a time. Start with fingertip PPG over USB; add the motion sensor after the pulse stream is stable, then add the CJMCU-6701 GSR module for electrodermal arousal context.</p>
       </div>
 
       <div class="hardware-layout">
@@ -72,7 +73,7 @@
             <span class="guide-num">01</span>
             <div>
               <h3>Gather the core parts</h3>
-              <p>ESP32 DevKit V1, one MAX30102 PPG module, one MPU6050 motion sensor, jumper wires, a breadboard or female-to-female Dupont wires, and a USB data cable.</p>
+              <p>ESP32 DevKit V1, one MAX30102 PPG module, one MPU6050 motion sensor, one CJMCU-6701 GSR skin-resistance module, jumper wires, a breadboard or female-to-female Dupont wires, and a USB data cable.</p>
               <p class="guide-note">Begin with one MAX30102. Two MAX30102 modules share address <code>0x57</code> and need a multiplexer or separate I²C bus.</p>
             </div>
           </article>
@@ -80,7 +81,7 @@
           <article class="guide-step">
             <span class="guide-num">02</span>
             <div>
-              <h3>Wire the shared I²C bus</h3>
+              <h3>Wire the shared I²C bus and GSR analog pin</h3>
               <div class="wire-table" role="table" aria-label="Sensor wiring">
                 <div class="wire-row wire-head" role="row"><span>Sensor pin</span><span>ESP32 pin</span></div>
                 <div class="wire-row" role="row"><span>MAX30102 VIN</span><strong>3V3</strong></div>
@@ -89,8 +90,10 @@
                 <div class="wire-row" role="row"><span>MAX30102 SCL</span><strong>G22</strong></div>
                 <div class="wire-row" role="row"><span>MPU6050 VCC / GND</span><strong>3V3 / GND</strong></div>
                 <div class="wire-row" role="row"><span>MPU6050 SDA / SCL</span><strong>G21 / G22</strong></div>
+                <div class="wire-row" role="row"><span>CJMCU-6701 VCC / GND</span><strong>3V3 / GND</strong></div>
+                <div class="wire-row" role="row"><span>CJMCU-6701 SIG</span><strong>G34</strong></div>
               </div>
-              <p class="guide-note warning-note">Disconnect USB power before changing wires. Use 3.3 V, not the ESP32 5 V pin.</p>
+              <p class="guide-note warning-note">Disconnect USB power before changing wires. Use 3.3 V, not the ESP32 5 V pin. GSR is an arousal proxy only; it is not an emotion, lie-detection or diagnostic sensor.</p>
             </div>
           </article>
 
@@ -100,7 +103,7 @@
               <h3>Install and flash the firmware</h3>
               <ol>
                 <li>Install Arduino IDE and Espressif's ESP32 board package.</li>
-                <li>Install the SparkFun MAX3010x and Adafruit MPU6050 libraries.</li>
+                <li>Install the SparkFun MAX3010x and Adafruit MPU6050 libraries. The CJMCU-6701 uses a plain ESP32 analog input and needs no Arduino library.</li>
                 <li>Open <code>firmware/neuroreadiness.ino</code>.</li>
                 <li>Select <strong>ESP32 Dev Module</strong>, choose the USB serial port, and upload.</li>
               </ol>
@@ -111,9 +114,9 @@
             <span class="guide-num">04</span>
             <div>
               <h3>Verify before testing</h3>
-              <p>At 115200 baud, the serial stream should begin with <code># NRDY,1</code>, followed by rows in this format:</p>
-              <pre><code>t_ms,red,ir,ax,ay,az</code></pre>
-              <p>Cover the MAX30102 with a fingertip and confirm that red and IR readings respond before starting the diagnostic.</p>
+              <p>At 115200 baud, the serial stream should begin with <code># NRDY,2</code>, followed by rows in this format:</p>
+              <pre><code>t_ms,red,ir,ax,ay,az,gsr</code></pre>
+              <p>Cover the MAX30102 with a fingertip and confirm that red and IR readings respond. Touch the GSR electrodes and confirm the final value changes before starting the diagnostic.</p>
             </div>
           </article>
         </div>
@@ -126,6 +129,7 @@
             <span>ESP32 connected by USB data cable</span>
             <span>Firmware uploaded and streaming</span>
             <span>MAX30102 placed on fingertip</span>
+            <span>CJMCU-6701 electrodes connected for GSR context</span>
           </div>
           <a class="btn btn-primary btn-lg" href="app.html?source=serial#/check">Connect and run test</a>
           <a class="text-link" href="app.html?source=demo#/check">Use simulated data instead</a>

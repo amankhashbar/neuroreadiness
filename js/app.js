@@ -17,6 +17,7 @@
   // ---- Shared modules -------------------------------------------------------
   const ppg = new NR.PPGProcessor();
   const motion = new NR.MotionDetector();
+  const gsr = new NR.GSRProcessor();
   const recorder = new NR.Recorder();
 
   const requestedSource = new URLSearchParams(location.search).get("source");
@@ -30,17 +31,23 @@
     connected: false,
     baselinePPG: null,
     taskPPG: null,
+    baselineGSR: null,
+    taskGSR: null,
     results: {},
     completedTasks: 0,
     collecting: null, // "baseline" | "task" | null
     hrBuf: [],
     rmssdBuf: [],
+    gsrArousalBuf: [],
+    gsrTonicBuf: [],
+    gsrReactivityBuf: [],
   };
 
-  // ---- Wire the data pipeline (sample → motion → ppg) -----------------------
+  // ---- Wire the data pipeline (sample → motion/ppg/gsr) ---------------------
   NR.bus.on("sample", (s) => {
     motion.onSample(s);
     ppg.onSample(s);
+    gsr.onSample(s);
   });
   NR.bus.on("motion", ({ flag }) => {
     ppg.setMotionFlag(flag);
@@ -53,6 +60,14 @@
     if (session.collecting && isFinite(p.hr)) {
       session.hrBuf.push(p.hr);
       if (isFinite(p.rmssd)) session.rmssdBuf.push(p.rmssd);
+    }
+  });
+  NR.bus.on("gsr", (g) => {
+    updateGSRReadout(g);
+    if (session.collecting && g.hasSignal) {
+      if (isFinite(g.arousal)) session.gsrArousalBuf.push(g.arousal);
+      if (isFinite(g.tonic)) session.gsrTonicBuf.push(g.tonic);
+      if (isFinite(g.reactivity)) session.gsrReactivityBuf.push(g.reactivity);
     }
   });
   NR.bus.on("sensor:status", ({ connected, kind }) => {
@@ -137,6 +152,10 @@
     }
     const console_ = el("#console");
     if (console_) console_.classList.toggle("low-confidence", q < 55);
+  }
+
+  function updateGSRReadout(g) {
+    setText("#live-gsr", g && g.hasSignal && isFinite(g.arousal) ? Math.round(g.arousal) : "—");
   }
 
   // ===========================================================================
@@ -252,6 +271,9 @@
     session.collecting = "baseline";
     session.hrBuf = [];
     session.rmssdBuf = [];
+    session.gsrArousalBuf = [];
+    session.gsrTonicBuf = [];
+    session.gsrReactivityBuf = [];
     el("#baseline-start").disabled = true;
     el("#baseline-skip").disabled = true;
 
@@ -275,6 +297,7 @@
 
   function finishBaseline() {
     session.baselinePPG = snapshotPPG();
+    session.baselineGSR = snapshotGSR();
     session.collecting = null;
     goto("tasks");
     runTasks();
@@ -289,12 +312,26 @@
     };
   }
 
+  function snapshotGSR() {
+    const med = (arr) => (arr.length ? NR.math.median(arr) : NaN);
+    const live = gsr.snapshot();
+    return {
+      present: !!live.hasSignal || session.gsrArousalBuf.length > 0,
+      arousal: med(session.gsrArousalBuf),
+      tonic: med(session.gsrTonicBuf),
+      reactivity: med(session.gsrReactivityBuf),
+    };
+  }
+
   // ---- Tasks ----------------------------------------------------------------
   async function runTasks() {
     const stage = el("#task-stage");
     session.collecting = "task";
     session.hrBuf = [];
     session.rmssdBuf = [];
+    session.gsrArousalBuf = [];
+    session.gsrTonicBuf = [];
+    session.gsrReactivityBuf = [];
 
     // Tell the mock physiology we're now under cognitive load.
     NR.sensor.setLoad && NR.sensor.setLoad(0.8);
@@ -314,6 +351,7 @@
 
     NR.sensor.setLoad && NR.sensor.setLoad(0.2);
     session.taskPPG = snapshotPPG();
+    session.taskGSR = snapshotGSR();
     session.collecting = null;
     showResults();
   }
@@ -338,6 +376,8 @@
       nback: session.results.nback,
       baselinePPG: session.baselinePPG,
       taskPPG: session.taskPPG,
+      baselineGSR: session.baselineGSR,
+      taskGSR: session.taskGSR,
       quality: ppg.meanQuality(),
       cleanFraction: motion.cleanFraction(),
       taskCompletion,
@@ -375,6 +415,7 @@
         cognitiveControl: val("cognitiveControl"),
         workingMemory: val("workingMemory"),
         physiologicalLoad: val("physiologicalLoad"),
+        electrodermalArousal: val("electrodermalArousal"),
         dataConfidence: val("dataConfidence"),
       },
       taskMetrics: {
@@ -389,6 +430,14 @@
         rmssdTask: num(session.taskPPG && session.taskPPG.rmssd),
         meanQuality: Math.round(ppg.meanQuality()),
       },
+      gsrSummary: {
+        present: !!(session.taskGSR && session.taskGSR.present),
+        arousalBaseline: num(session.baselineGSR && session.baselineGSR.arousal),
+        arousalTask: num(session.taskGSR && session.taskGSR.arousal),
+        tonicTask: num(session.taskGSR && session.taskGSR.tonic),
+        reactivityTask: num(session.taskGSR && session.taskGSR.reactivity),
+      },
+      arousalContext: s.arousalContext || null,
       motionClean: +motion.cleanFraction().toFixed(2),
       tags: [],
       notes: "",
@@ -417,6 +466,7 @@
     { key: "cognitiveControl", label: "Cognitive control", sub: "Stroop · inhibition", invert: false },
     { key: "workingMemory", label: "Working memory", sub: "2-back · d′", invert: false },
     { key: "physiologicalLoad", label: "Physiological load", sub: "HR + HRV proxy", invert: true },
+    { key: "electrodermalArousal", label: "Electrodermal arousal", sub: "GSR · experimental", invert: true },
   ];
 
   function renderScoreCards(s) {
@@ -437,6 +487,14 @@
           <div class="score-why">${r.why}</div>
         </div>`;
     }).join("");
+
+    const context = el("#arousal-context");
+    const contextText = el("#arousal-context-text");
+    if (context && contextText) {
+      const ctx = s.arousalContext;
+      context.classList.toggle("hidden", !ctx || !ctx.present);
+      if (ctx && ctx.present) contextText.textContent = ctx.text;
+    }
 
     // Confidence is rendered separately and prominently — it gates the rest.
     const c = s.dataConfidence;
@@ -625,7 +683,7 @@
     } else {
       if (sourceLabel) sourceLabel.textContent = "Simulated demo mode.";
       if (sourceDetail) sourceDetail.textContent = "Synthetic sensor data will demonstrate the complete workflow.";
-      if (sourcePrivacyNote) sourcePrivacyNote.innerHTML = "Demo mode uses a simulated pulse and motion stream. <strong>No account, no upload:</strong> session data stays on your device.";
+      if (sourcePrivacyNote) sourcePrivacyNote.innerHTML = "Demo mode uses a simulated pulse, motion and arousal stream. <strong>No account, no upload:</strong> session data stays on your device.";
       if (connectBtn) connectBtn.textContent = "Start demo & check fit";
     }
 

@@ -18,6 +18,7 @@
     { key: "meanRT", label: "Reaction time", better: "low", unit: "ms", accessor: (s) => s.taskMetrics && s.taskMetrics.pvt && s.taskMetrics.pvt.meanRT },
     { key: "lapses", label: "Lapses", better: "low", unit: "", accessor: (s) => s.taskMetrics && s.taskMetrics.pvt && s.taskMetrics.pvt.lapses },
     { key: "hrv", label: "HRV (RMSSD)", better: "high", unit: "ms", accessor: (s) => s.ppgSummary && s.ppgSummary.rmssdTask },
+    { key: "gsr", label: "GSR arousal", better: "context", unit: "", accessor: (s) => s.gsrSummary && s.gsrSummary.arousalTask },
     { key: "confidence", label: "Data confidence", better: "high", unit: "", accessor: (s) => s.scores && s.scores.dataConfidence },
   ];
 
@@ -76,7 +77,7 @@
       d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
       const off = baseline.n ? (p.v - baseline.mean) : 0;
       const goodDir = meta.better === "high" ? off >= 0 : off <= 0;
-      const cls = !baseline.n ? "neutral" : goodDir ? "good" : "bad";
+      const cls = !baseline.n || meta.better === "context" ? "neutral" : goodDir ? "good" : "bad";
       dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.5" class="chart-dot ${cls}"/>`;
     });
 
@@ -156,7 +157,8 @@
     const baseline = NR.store.baselineStats(
       state.sessions.filter((s) => s.timestamp >= Date.now() - BASELINE_DAYS * 864e5).map(meta.accessor)
     );
-    el("#chart-better").textContent = meta.better === "high" ? "higher is better" : "lower is better";
+    el("#chart-better").textContent =
+      meta.better === "context" ? "context only" : meta.better === "high" ? "higher is better" : "lower is better";
     el("#history-chart").innerHTML = chartSVG(points, meta, baseline);
   }
 
@@ -211,6 +213,7 @@
         ${row("Cognitive control", fmtNum(s.scores && s.scores.cognitiveControl, ""))}
         ${row("Working memory", fmtNum(s.scores && s.scores.workingMemory, ""))}
         ${row("Physio load", fmtNum(s.scores && s.scores.physiologicalLoad, ""))}
+        ${row("GSR arousal", fmtNum(s.scores && s.scores.electrodermalArousal, ""))}
         ${row("Mean RT", fmtNum(p.meanRT, "ms"))}
         ${row("Lapses", fmtNum(p.lapses, ""))}
         ${row("Stroop interf.", fmtNum(st.interference, "ms"))}
@@ -218,6 +221,7 @@
         ${row("HR base→task", `${fmtNum(pp.hrBaseline, "")}→${fmtNum(pp.hrTask, "")}`)}
         ${row("RMSSD base→task", `${fmtNum(pp.rmssdBaseline, "")}→${fmtNum(pp.rmssdTask, "")}`)}
         ${row("Signal quality", fmtNum(pp.meanQuality, ""))}
+        ${row("GSR base→task", `${fmtNum(s.gsrSummary && s.gsrSummary.arousalBaseline, "")}→${fmtNum(s.gsrSummary && s.gsrSummary.arousalTask, "")}`)}
         ${row("Motion clean", s.motionClean != null ? Math.round(s.motionClean * 100) + "%" : "—")}
       </div>
       <button class="btn btn-ghost log-delete" data-id="${s.id}">Delete session</button>

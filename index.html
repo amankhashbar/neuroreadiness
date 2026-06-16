@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>NeuroReadiness — Know when your mind is ready</title>
-<meta name="description" content="A short cognitive check combined with pulse and motion data estimates how ready you are for demanding mental work — and tells you how much to trust the reading." />
+<meta name="description" content="A short cognitive check combined with pulse, motion and electrodermal arousal data estimates how ready you are for demanding mental work — and tells you how much to trust the reading." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -48,7 +48,7 @@
   <div class="wrap hero-inner">
     <span class="eyebrow reveal in">Performance · physiology · confidence</span>
     <h1 class="hero-title reveal in d1">Know when your mind is ready.</h1>
-    <p class="hero-lede reveal in d2">A short cognitive check combined with pulse and motion data gives you a clearer picture of your attention, mental control and physiological load before the work that matters.</p>
+    <p class="hero-lede reveal in d2">A short cognitive check combined with pulse, motion and electrodermal arousal data gives you a clearer picture of your attention, mental control and physiological load before the work that matters.</p>
     <div class="hero-actions reveal in d3">
       <a class="btn btn-primary btn-lg" href="sensor-setup.html">Run a readiness check</a>
       <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
@@ -121,7 +121,7 @@
     <div class="section-head promise-lede reveal">
       <span class="eyebrow">The premise</span>
       <h2 class="section-title">Readiness is more than how rested you feel.</h2>
-      <p>Sleep and recovery trackers infer readiness from <strong>passive body signals</strong> measured overnight. NeuroReadiness instead <strong>actively checks present cognitive performance</strong> with brief tasks, then combines it with live physiology — so the reading reflects how you are right now, not how last night went.</p>
+      <p>Sleep and recovery trackers infer readiness from <strong>passive body signals</strong> measured overnight. NeuroReadiness instead <strong>actively checks present cognitive performance</strong> with brief tasks, then combines it with live physiology and arousal context — so the reading reflects how you are right now, not how last night went.</p>
     <div class="outcomes">
       <div class="outcome reveal d1">
         <div class="o-num">01</div>
@@ -131,7 +131,7 @@
       <div class="outcome reveal d2">
         <div class="o-num">02</div>
         <h3>Understand what may be limiting it</h3>
-        <p>Pulse and motion signals add physiological context, so a dip reads as load or fatigue rather than an unexplained number.</p>
+        <p>Pulse, motion and electrodermal arousal signals add physiological context, so a dip reads as fatigue-like under-recovery or elevated arousal rather than an unexplained number.</p>
       </div>
       <div class="outcome reveal d3">
         <div class="o-num">03</div>
@@ -162,7 +162,7 @@
           </div>
         </div>
         <div class="step-meta"><span class="step-num">01</span><h3>Establish your baseline</h3></div>
-        <p>Capture a short resting pulse and signal-quality reading. The check won't start until the signal holds steady.</p>
+        <p>Capture a short resting pulse, arousal baseline and signal-quality reading. The check won't start until the pulse signal holds steady.</p>
       </div>
       <!-- 02 test -->
       <div class="step reveal d2">
@@ -197,7 +197,7 @@
           </div>
         </div>
         <div class="step-meta"><span class="step-num">03</span><h3>Understand your result</h3></div>
-        <p>See performance, physiological load, and how much confidence to place in the reading — never a number on its own.</p>
+        <p>See performance, physiological load, electrodermal arousal context, and how much confidence to place in the reading — never a number on its own.</p>
       </div>
     </div>
   </div>
@@ -249,11 +249,12 @@
         <div class="stream-item">Heart rate<svg class="si-spark" viewBox="0 0 42 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,9 10,9 16,4 21,14 27,8 42,9" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
         <div class="stream-item">HRV / PRV proxy<svg class="si-spark" viewBox="0 0 42 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,8 10,11 21,7 31,10 42,8" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
         <div class="stream-item">Perfusion<svg class="si-spark" viewBox="0 0 42 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,10 10,9 21,11 31,9 42,10" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
+        <div class="stream-item">Skin conductance / arousal<svg class="si-spark" viewBox="0 0 42 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,13 8,12 14,8 22,7 30,10 42,6" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
         <div class="stream-item">Motion &amp; signal quality<svg class="si-spark" viewBox="0 0 42 18" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,9 10,8 21,10 31,8 42,9" fill="none" stroke="#2563eb" stroke-width="1.5"/></svg></div>
       </div>
     </div>
 
-    <p class="measure-note reveal">These are <b>performance and physiological proxies</b> — reaction, pulse, motion. NeuroReadiness does not read brain activity, cerebral blood flow, or anything intracranial.</p>
+    <p class="measure-note reveal">These are <b>performance and physiological proxies</b> — reaction, pulse, motion and electrodermal arousal. GSR helps contextualize sympathetic activation; it does not read emotions, diagnose stress, or detect truthfulness. NeuroReadiness does not read brain activity, cerebral blood flow, or anything intracranial.</p>
   </div>
 </section>
 
@@ -263,7 +264,7 @@
     <div class="section-head reveal">
       <span class="eyebrow">Data confidence · the signature</span>
       <h2 class="section-title">A score is only useful when the signal deserves your trust.</h2>
-      <p class="section-lede">NeuroReadiness continuously checks perfusion, motion, beat regularity and task completion. When the data is weak, the interface <strong>lowers its confidence</strong> instead of presenting false certainty.</p>
+      <p class="section-lede">NeuroReadiness continuously checks perfusion, motion, beat regularity and task completion. GSR adds arousal context but does not increase data confidence. When the core signal is weak, the interface <strong>lowers its confidence</strong> instead of presenting false certainty.</p>
     </div>
 
     <div class="conf-compare">
@@ -468,7 +469,7 @@
         <a class="link-arrow" href="app.html#/faq">Explore the methodology <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         <div class="not-medical">
           <div class="nm-h"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.4"/><path d="M8 7.2v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="4.8" r=".8" fill="currentColor"/></svg>Important</div>
-          <p>Not a medical device. Does not diagnose conditions, or measure brain activity or cerebral blood flow.</p>
+          <p>Not a medical device. Does not diagnose conditions, read emotions, or measure brain activity or cerebral blood flow.</p>
         </div>
       </div>
     </div>

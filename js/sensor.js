@@ -3,7 +3,7 @@
    Shared sensor-source contract for simulated and live streams.
 
    Both MockSensor and SerialSensor emit the exact same event:
-       NR.bus.emit("sample", { t, red, ir, ax, ay, az })
+       NR.bus.emit("sample", { t, red, ir, ax, ay, az, gsr })
    ...at NR.config.SAMPLE_RATE_HZ. Every analytics/UI module listens
    to "sample" and neither knows nor cares where the data came from.
 
@@ -60,6 +60,10 @@
       this.motionMag = 0;
       this.perfusionScale = 1.0; // 1 = finger; temple mode weakens this
       this.mode = "finger";
+      this.loadLevel = 0;
+      this.gsrTarget = 4.2; // microsiemens, synthetic electrodermal conductance
+      this.gsrTonic = 4.2;
+      this.gsrFast = 4.2;
     }
 
     // "finger" gives a strong clean PPG; "temple" mimics the weak, noisy
@@ -73,8 +77,10 @@
     // Called by the app when entering/leaving cognitive tasks so the
     // synthetic physiology responds to "workload" realistically.
     setLoad(level /* 0..1 */) {
+      this.loadLevel = level;
       this.hrTarget = 62 + level * 26;     // 62 → 88 bpm
       this.hrvAmp = 1.0 - level * 0.65;    // relaxed → suppressed HRV
+      this.gsrTarget = 4.2 + level * 4.5;   // higher sympathetic arousal under load
     }
 
     // Simulate the user bumping/adjusting the headband. The confidence
@@ -146,6 +152,13 @@
         az += burst * 0.3;
       }
 
+      // Electrodermal activity changes slowly. The mock stream models tonic
+      // conductance in microsiemens plus a small task-linked phasic rise.
+      this.gsrTonic += (this.gsrTarget - this.gsrTonic) * 0.006;
+      const phasic = this.loadLevel * Math.max(0, Math.sin((tMs / 1000) * 0.035 * 2 * Math.PI)) * 0.7;
+      this.gsrFast += (this.gsrTonic + phasic - this.gsrFast) * 0.03;
+      const gsr = Math.max(0.2, this.gsrFast + randn() * 0.04 + Math.abs(motion) / 40000);
+
       const ir = irDC + irAC * pulse + wander + motion + randn() * (120 + extraNoise);
       const red = redDC + redAC * pulse + wander * 0.8 + motion * 0.8 + randn() * (110 + extraNoise);
 
@@ -156,6 +169,7 @@
         ax: +ax.toFixed(3),
         ay: +ay.toFixed(3),
         az: +az.toFixed(3),
+        gsr: +gsr.toFixed(3),
       });
     }
 
@@ -170,9 +184,10 @@
   /* ===========================================================
      SerialSensor — real ESP32 over Web Serial (Chromium only).
      Expects newline-delimited CSV lines from the firmware:
-         t_ms,red,ir,ax,ay,az
+         t_ms,red,ir,ax,ay,az,gsr
      Lines that don't start with a digit are ignored (so the firmware
-     can print a "# NRDY,1" banner or debug text harmlessly).
+     can print a "# NRDY,2" banner or debug text harmlessly).
+     The 7th GSR column is optional: v1 firmware streams still work.
      This is wired and ready; it just needs the board plugged in.
      =========================================================== */
   class SerialSensor extends SensorSource {
@@ -225,13 +240,14 @@
       if (!line || !/^\d/.test(line)) return; // ignore banners/debug
       const parts = line.split(",");
       if (parts.length < 3) return;
-      const [t, red, ir, ax, ay, az] = parts.map(Number);
+      const [t, red, ir, ax, ay, az, gsr] = parts.map(Number);
       if ([t, red, ir].some(Number.isNaN)) return;
       if (this._t0 == null) this._t0 = t;
       this._emit({
         t: t - this._t0,
         red, ir,
         ax: ax || 0, ay: ay || 0, az: az || 0,
+        gsr: Number.isFinite(gsr) ? gsr : NaN,
       });
     }
 

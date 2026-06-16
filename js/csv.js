@@ -42,9 +42,9 @@
     }
 
     exportSamples() {
-      const rows = ["t_ms,red,ir,ax,ay,az"];
+      const rows = ["t_ms,red,ir,ax,ay,az,gsr"];
       for (const s of this.samples) {
-        rows.push(`${s.t},${s.red},${s.ir},${s.ax},${s.ay},${s.az}`);
+        rows.push(`${s.t},${s.red},${s.ir},${s.ax},${s.ay},${s.az},${Number.isFinite(s.gsr) ? s.gsr : ""}`);
       }
       this._download(`neuroreadiness_signal_${this._stamp()}.csv`, rows.join("\n"));
     }

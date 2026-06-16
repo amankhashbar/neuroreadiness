@@ -1,9 +1,9 @@
 /* =============================================================
    NeuroReadiness — ESP32 firmware
-   Streams MAX30102 (PPG) + MPU6050 (IMU) over USB serial as CSV lines
-   that the browser app's SerialSensor parses directly:
+   Streams MAX30102 (PPG) + MPU6050 (IMU) + CJMCU-6701 GSR over USB
+   serial as CSV lines that the browser app's SerialSensor parses directly:
 
-       t_ms,red,ir,ax,ay,az
+       t_ms,red,ir,ax,ay,az,gsr
 
    The browser app's live-sensor mode consumes this serial protocol directly.
    The simulated mode emits the same sample shape so both paths use the same
@@ -12,6 +12,7 @@
    ── Wiring (I2C, both sensors share the bus) ──────────────────
      MAX30102   VIN→3V3   GND→GND   SDA→GPIO21   SCL→GPIO22
      MPU6050    VCC→3V3   GND→GND   SDA→GPIO21   SCL→GPIO22
+     CJMCU-6701 VCC→3V3   GND→GND   SIG→GPIO34
    (MAX30102 default addr 0x57, MPU6050 0x68 — no conflict.)
 
    ── Libraries (Arduino Library Manager) ───────────────────────
@@ -35,6 +36,7 @@ Adafruit_MPU6050 imu;
 
 const uint32_t SAMPLE_HZ = 50;
 const uint32_t SAMPLE_INTERVAL_US = 1000000UL / SAMPLE_HZ;
+const int GSR_PIN = 34;  // ADC1 input, input-only and safe while Wi-Fi is off
 
 uint32_t startMs = 0;
 uint32_t lastSampleUs = 0;
@@ -46,6 +48,8 @@ void setup() {
 
   Wire.begin(21, 22);
   Wire.setClock(400000);  // 400 kHz I2C
+  analogReadResolution(12);
+  analogSetPinAttenuation(GSR_PIN, ADC_11db); // 0–3.3 V range
 
   // --- PPG ---
   if (!ppg.begin(Wire, I2C_SPEED_FAST)) {
@@ -69,7 +73,7 @@ void setup() {
 
   // Protocol banner. SerialSensor ignores any line not starting with a
   // digit, so this is safe to print.
-  Serial.println("# NRDY,1");  // NeuroReadiness protocol v1
+  Serial.println("# NRDY,2");  // NeuroReadiness protocol v2: adds GSR ADC column
   startMs = millis();
   lastSampleUs = micros();
 }
@@ -93,12 +97,14 @@ void loop() {
   }
 
   uint32_t t = millis() - startMs;
+  uint16_t gsr = analogRead(GSR_PIN); // raw CJMCU-6701 analog output, 0–4095
 
-  // t_ms,red,ir,ax,ay,az
+  // t_ms,red,ir,ax,ay,az,gsr
   Serial.print(t);        Serial.print(',');
   Serial.print(red);      Serial.print(',');
   Serial.print(ir);       Serial.print(',');
   Serial.print(ax, 3);    Serial.print(',');
   Serial.print(ay, 3);    Serial.print(',');
-  Serial.println(az, 3);
+  Serial.print(az, 3);    Serial.print(',');
+  Serial.println(gsr);
 }
