@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <!-- Hero ambient orb: a soft teal->blue bloom with a faint inner core and a
+       thin orbital ring, giving the hero depth where the device photo used to
+       float. Pure light atmosphere, no hard edges. -->
+  <defs>
+    <radialGradient id="orb" cx="50%" cy="44%" r="56%">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.9"/>
+      <stop offset="34%" stop-color="#5EEAD4" stop-opacity="0.55"/>
+      <stop offset="66%" stop-color="#2DD4BF" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#3B82F6" stop-opacity="0"/>
+      <stop offset="78%" stop-color="#3B82F6" stop-opacity="0"/>
+      <stop offset="90%" stop-color="#2DD4BF" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="b" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+  <circle cx="450" cy="430" r="430" fill="url(#halo)"/>
+  <circle cx="450" cy="400" r="300" fill="url(#orb)" filter="url(#b)"/>
+  <circle cx="450" cy="400" r="232" fill="none" stroke="#2DD4BF" stroke-opacity="0.22" stroke-width="1.5"/>
+  <circle cx="450" cy="400" r="300" fill="none" stroke="#3B82F6" stroke-opacity="0.12" stroke-width="1.5"/>
+</svg>

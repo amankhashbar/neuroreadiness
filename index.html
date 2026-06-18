@@ -15,9 +15,18 @@
 <link rel="apple-touch-icon" href="icons/icon.svg" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Cortex" />
-<link rel="preload" as="image" href="assets/sensors/esp32.png" />
+<link rel="preload" as="image" href="assets/bg/ambient-page.svg" />
+<link rel="preload" as="image" href="assets/bg/ambient-hero.svg" />
 <style>
   body{background:#E9ECF0;}
+  /* Ambient backdrop: one continuous atmosphere behind the whole page
+     (Whoop/Novu-style), drifting slowly so it feels alive. Fixed so all
+     sections scroll over the same image; light sections are made translucent
+     below so it shows through, dark cards (personas, CTA, footer) sit on top. */
+  .lp::before{content:"";position:fixed;inset:-8% -8% -8% -8%;z-index:-10;
+    background:url("assets/bg/ambient-page.svg") center/cover no-repeat,#E9ECF0;
+    animation:cxDrift 26s ease-in-out infinite alternate;pointer-events:none;}
+  @keyframes cxDrift{from{transform:translate3d(-1.4%,-1%,0) scale(1.04);}to{transform:translate3d(1.6%,1.4%,0) scale(1.1);}}
   ::selection{background:rgba(45,212,191,0.28);}
   @keyframes cxZoom{from{transform:scale(1);}to{transform:scale(1.09);}}
   @keyframes cxPulse{0%,100%{opacity:.35;transform:scale(1);}50%{opacity:1;transform:scale(1.7);}}
@@ -96,14 +105,11 @@
 
   <!-- ================= §1 HERO ================= -->
   <section id="hero" style="position:relative;isolation:isolate;min-height:100vh;display:flex;align-items:center;padding:128px 24px 96px;overflow:hidden;">
-    <div style="position:absolute;inset:0;z-index:-2;background:radial-gradient(120% 90% at 78% 12%,#F4F7F8 0%,#E7ECF0 45%,#DDE4E9 100%);"></div>
-    <div data-cx-parallax="0.18" style="position:absolute;inset:-6% -6% -6% -6%;z-index:-2;animation:cxZoom 16s ease-in-out infinite alternate;">
-      <div style="position:absolute;right:-4%;top:6%;width:min(560px,52vw);transform:rotate(8deg);filter:drop-shadow(0 50px 80px rgba(12,20,30,0.28));">
-        <div style="position:absolute;inset:-18%;background:radial-gradient(circle at 50% 45%,rgba(45,212,191,0.28),rgba(45,212,191,0) 62%);"></div>
-        <img src="assets/sensors/esp32.png" alt="Cortex ESP32 sensor hub" style="width:100%;display:block;position:relative;"/>
-      </div>
+    <div style="position:absolute;inset:0;z-index:-2;background:radial-gradient(120% 90% at 78% 12%,rgba(244,247,248,0.30) 0%,rgba(231,236,240,0.34) 45%,rgba(221,228,233,0.46) 100%);"></div>
+    <div data-cx-parallax="0.12" style="position:absolute;inset:-6% -6% -6% -6%;z-index:-2;animation:cxZoom 16s ease-in-out infinite alternate;">
+      <img src="assets/bg/ambient-hero.svg" alt="" aria-hidden="true" style="position:absolute;right:-10%;top:-6%;width:min(720px,64vw);display:block;pointer-events:none;"/>
     </div>
-    <div style="position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,rgba(238,242,245,0.92) 0%,rgba(238,242,245,0.5) 46%,rgba(238,242,245,0.08) 72%);"></div>
+    <div style="position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,rgba(240,244,247,0.78) 0%,rgba(240,244,247,0.34) 44%,rgba(240,244,247,0) 70%);"></div>
 
     <div class="hero-grid" style="width:100%;max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.15fr 0.85fr;gap:48px;align-items:center;">
       <div>
@@ -272,7 +278,7 @@
 
   <!-- ================= §3 THE TEST — PEAK 2 ================= -->
   <section id="test" style="position:relative;isolation:isolate;padding:120px 24px 130px;overflow:hidden;">
-    <div style="position:absolute;inset:0;z-index:-2;background:radial-gradient(120% 90% at 22% 18%,#EEF3F7 0%,#E3EAF1 50%,#DBE4EC 100%);"></div>
+    <div style="position:absolute;inset:0;z-index:-2;background:radial-gradient(120% 90% at 22% 18%,rgba(238,243,247,0.30) 0%,rgba(227,234,241,0.40) 50%,rgba(219,228,236,0.50) 100%);"></div>
     <div style="position:absolute;inset:0;z-index:-2;background:radial-gradient(50% 50% at 80% 70%,rgba(59,130,246,0.1),rgba(59,130,246,0) 70%);"></div>
 
     <div class="test-grid" style="max-width:1180px;margin:0 auto;display:grid;grid-template-columns:0.92fr 1.08fr;gap:56px;align-items:center;">
@@ -338,7 +344,7 @@
 
   <!-- ================= §4 WHERE IT FITS ================= -->
   <section id="fits" style="position:relative;isolation:isolate;padding:118px 24px;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(180deg,transparent,#000 5%,#000 95%,transparent);">
-    <div style="position:absolute;inset:0;z-index:-2;background:linear-gradient(160deg,#E9EEF2 0%,#E1E8EE 60%,#DCE4EB 100%);"></div>
+    <div style="position:absolute;inset:0;z-index:-2;background:linear-gradient(160deg,rgba(233,238,242,0.34) 0%,rgba(225,232,238,0.42) 60%,rgba(220,228,235,0.52) 100%);"></div>
     <div class="fits-grid" style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;">
       <div>
         <h2 data-reveal style="font-family:'Sora',sans-serif;font-weight:600;font-size:clamp(28px,3.8vw,46px);line-height:1.08;letter-spacing:-0.02em;margin:0 0 20px;max-width:14ch;">Your watch tracks your body. Cortex tracks your mind.</h2>

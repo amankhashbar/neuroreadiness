@@ -11,7 +11,7 @@
      still renders offline after the first online visit.
    Bump CACHE on any shell change to retire the old cache.
    ============================================================= */
-const CACHE = "cortex-shell-v18";
+const CACHE = "cortex-shell-v19";
 
 // Paths are relative to the SW scope, so this works under a Pages subpath.
 const SHELL = [
@@ -44,6 +44,8 @@ const SHELL = [
   "./js/app.js",
   "./icons/icon.svg",
   "./icons/icon-maskable.svg",
+  "./assets/bg/ambient-page.svg",
+  "./assets/bg/ambient-hero.svg",
 ];
 
 self.addEventListener("install", (event) => {
