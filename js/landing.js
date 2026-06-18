@@ -170,11 +170,36 @@
     window.addEventListener("resize", onSpy, { passive: true });
   }
 
+  // ---- Mobile dropdown menu: burger toggles the panel ----------------------
+  function initMobileMenu() {
+    var burger = document.getElementById("nav-burger");
+    var menu = document.getElementById("mobile-menu");
+    if (!burger || !menu) return;
+    var setOpen = function (open) {
+      menu.classList.toggle("open", open);
+      burger.setAttribute("aria-expanded", open ? "true" : "false");
+      burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    };
+    burger.addEventListener("click", function (e) {
+      e.stopPropagation();
+      setOpen(!menu.classList.contains("open"));
+    });
+    // Close on link tap, outside click, or scroll.
+    menu.querySelectorAll("[data-mm-link]").forEach(function (a) {
+      a.addEventListener("click", function () { setOpen(false); });
+    });
+    document.addEventListener("click", function (e) {
+      if (menu.classList.contains("open") && !menu.contains(e.target) && e.target !== burger) setOpen(false);
+    });
+    window.addEventListener("scroll", function () { if (menu.classList.contains("open")) setOpen(false); }, { passive: true });
+  }
+
   function start() {
     initReveals();
     initWaveforms();
     initParallax();
     initNav();
+    initMobileMenu();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
